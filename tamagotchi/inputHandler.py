@@ -1,5 +1,6 @@
-import RPi.GPIO as GPIO
-import smbus
+import RPi.GPIO as GPIO #for rp5 model b, rpi-lgpio library used
+GPIO.setmode(GPIO.BCM)
+import smbus2 as smbus
 import time
 import logging
 from stats import Stats

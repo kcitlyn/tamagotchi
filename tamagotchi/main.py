@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
 
 import time
 import os
@@ -15,8 +16,6 @@ def main():
     screen = Display()
     face = Appearance(pet, screen)
     REBOOT_HOLD_TIME = 15  # seconds to hold button to reboot
-
-    GPIO.setmode(GPIO.BCM)
 
     screen.screenChange("starting")
     time.sleep(2)
