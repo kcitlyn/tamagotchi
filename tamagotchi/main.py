@@ -10,14 +10,14 @@ import logging
 from display import Display
 from inputHandler import Sensors, Button
 from pet import Appearance
-import stats
+from stats import Stats
 
 hungerButton = Button(21, "down")
 sleepButton = Button(20, "down")
-startButton = Button(16, "none")
+startButton = Button(16, "down")
 
 def main():
-    pet = stats()
+    pet = Stats()
     screen = Display()
     face = Appearance(pet, screen)
     REBOOT_HOLD_TIME = 15  # seconds to hold button to reboot

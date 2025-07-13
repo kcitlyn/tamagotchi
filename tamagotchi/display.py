@@ -1,6 +1,6 @@
 from RPLCD.i2c import CharLCD
 import logging
-screenAddress=0x3F # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0x27
+screenAddress=0x27 # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0x27
 
 class Display:
     def __init__(self):
