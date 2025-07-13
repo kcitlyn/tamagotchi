@@ -1,73 +1,8 @@
 import RPi.GPIO as GPIO
 import smbus
 import time
-from pet import Stats, hunger, sleep, happiness
-
-#channels for ADC module, if more sensors are added
-class Sensors:
-    channels=[
-        10000100, #input channel a2
-        10010100, #input channel a1
-        10100100, #input channel a2
-        10110100, #input channel a3
-        11000100, #input channel a4
-        11010100, #input channel a5
-        11100100, #input channel a6
-        11110100 #input channel a7
-    ]
-
-    def readChannel(address, channel):
-        bus= smbus.SMBus(1)
-        command=Sensors.channels[channel]
-        if address==0x4B:
-            if channel>0 and channel<7:
-                try:
-                    bus.write_byte(address, command)
-                    time.sleep(0.1)
-                    value = bus.read_byte(address)
-                    return value
-                except IOError:
-                    print("I²C read/write error.")
-                    return 0
-            else:
-                print("there is no such channel as "+ channel)
-        else:
-            print("address for i2c connection not found")
-        #if address== insertDiffi2cAddress: <-- if u want to use multiple adc devices
-    def daylight():
-        brightness=Sensors.readChannel(0x4B,1)/255
-        if 0<brightness<.5:
-            dayTrue=False
-        else:
-            dayTrue=True
-        return dayTrue
-    @staticmethod
-    def touch(pet):
-        ifTouched= Sensors.readChannel(0x4B, 0)
-        if ifTouched>0:
-            pet.happinessChange("petting")
-        else:
-            pet.happinessChange("no petting")
-    @staticmethod
-    def hunger(pet):
-        hungerPin=21
-        hungerButton= Button(hungerPin, "down")
-        if hungerButton.was_pressed():
-            pet.hungerChange("eat")
-            pet.sleepChange("eating")
-        else:
-            pet.hungerChange("no eat")
-    @staticmethod
-    def sleep(pet):
-        sleepPin=20
-        sleepButton= Button(sleepPin, "down")
-        if sleepButton.was_pressed() and Sensors.daylight()==False:
-            pet.sleepChange("sleep")
-            pet.hungerChange("sleep")
-        if sleepButton.was_pressed() and Sensors.daylight()==True:
-            print("it must be night for her to sleep.")
-        else:
-            pet.sleepChange("no sleep")
+import logging
+from pet import Stats, hunger, sleep, joy
 class Button():
     def __init__(self, pin, pullState):
         self.pin = pin
@@ -111,5 +46,74 @@ class Button():
                 self._hold_triggered = True  # only trigger once per hold
                 return True
         return False
-startPin=16
-start_button = Button(startPin, "down")
+#channels for ADC module, if more sensors are added
+hungerButton = Button(21, "down")
+sleepButton= Button(20, "down")
+startButton = Button(16, "down")
+ADC_ADDRESS = 0X4B
+TOUCH_THRESHOLD = 10
+BRIGHTNESS_THRESHOLD = .5
+class Sensors:
+    channels=[
+        10000100, #input channel a0
+        10010100, #input channel a1
+        10100100, #input channel a2
+        10110100, #input channel a3
+        11000100, #input channel a4
+        11010100, #input channel a5
+        11100100, #input channel a6
+        11110100 #input channel a7
+    ]
+    @staticmethod
+    def readChannel(address, channel):
+        bus= smbus.SMBus(1)
+        command=Sensors.channels[channel] #this assigns sensor to specified channel in method
+        if address==ADC_ADDRESS:
+            if channel>-1 and channel<7:
+                try:
+                    bus.write_byte(address, command)
+                    time.sleep(0.1)
+                    value = bus.read_byte(address)
+                    return value
+                except IOError:
+                    logging.error("I²C read/write error with "+ str(channel))
+                    return 0
+            else:
+                logging.error("there is no such channel as "+ str(channel))
+        else:
+            logging.error("address for i2c connection not found")
+        #if address== insertDiffi2cAddress: <-- if u want to use multiple adc devices
+    @staticmethod
+    def daylight():
+        brightness=Sensors.readChannel(ADC_ADDRESS,1)/255
+        if 0 < brightness < BRIGHTNESS_THRESHOLD:
+            is_day=False
+        else:
+            is_day=True
+        return is_day
+    @staticmethod
+    def touch(pet):
+        ifTouched= Sensors.readChannel(ADC_ADDRESS, 0)
+        if ifTouched>TOUCH_THRESHOLD:
+            pet.joyChange("petting")
+        else:
+            pet.joyChange("no petting")
+
+    @staticmethod
+    def hunger(pet):
+        if Sensors.hungerButton.was_pressed():
+            pet.hungerChange("eat")
+            pet.sleepChange("eating")
+        else:
+            pet.hungerChange("no eat")
+
+    @staticmethod
+    def sleep(pet):
+        if sleepButton.was_pressed():
+            if not Sensors.daylight():
+                pet.sleepChange("sleep")
+                pet.hungerChange("sleep")
+            else:
+                logging.info("It must be night for her to sleep.")
+        else:
+            pet.sleepChange("no sleep")

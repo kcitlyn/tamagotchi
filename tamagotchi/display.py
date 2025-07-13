@@ -1,6 +1,6 @@
-from RPLCD.i2c import CharLCD#sudo pip3 install RPLCD
-
-screenAddress=0x3F # If your piggy-back board holds PCF8574T chip, then the default is likely 0x27
+from RPLCD.i2c import CharLCD
+import logging
+screenAddress=0x3F # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0x27
 
 class Display:
     def __init__(self):
@@ -9,58 +9,83 @@ class Display:
                     charmap='A02',
                     auto_linebreaks=False,
                     backlight_enabled=False) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
+        self.loadChar()
+        self.lcd.cursor_pos = (0, 0)          # Row 2, column 4
+        self.lcd.write_string('\x00\x01')    # Top row of the face
+        self.lcd.cursor_pos = (1, 0)          # Row 3, column 4
+        self.lcd.write_string('\x02\x03')    # Bottom row of the face
+    def display_stats(self, hunger, sleep, joy):
+        # Row 0: Hunger 'h: x'
+        self.lcd.cursor_pos = (0, 14)
+        self.lcd.write_string(f"h:{hunger:.1f}")
+
+        # Row 1: Sleep 's: x'
+        self.lcd.cursor_pos = (1, 14)
+        self.lcd.write_string(f"s:{sleep:.1f}")
+
+        # Row 2: Joy 'j: x'
+        self.lcd.cursor_pos = (2, 14)
+        self.lcd.write_string(f"j:{joy:.1f}")
 
     def screenChange(self, state):
-        self.mode="start"
         self.lcd.clear()
-        self.loadChar()
         if state == "starting":
-            self.text_stuff("Welcome!", "This is Tim")
-        elif state == "happy":
-            self.mode="happy"
-            self.text_stuff("(^‿^)", "happy")
+            self.mode="start"
+            self.screenMessage("Welcome!", "This is Tim")
+        elif state == "joy":
+            self.mode="joy"
+            self.screenMessage("(^‿^)", "joy")
         elif state == "angry":
             self.mode="angry"
-            self.text_stuff("(>_<)", "angry")
+            self.screenMessage("(>_<)", "angry")
         elif state == "sleep":
             self.mode="sleep"
-            self.text_stuff("(-.-)Zzz", "sleep")
+            self.screenMessage("(-.-)Zzz", "sleep")
         elif state == "dead":
             self.mode="dead"
-            self.text_stuff("x_x", "dead")
+            self.screenMessage("x_x", "dead")
         elif state == "neutral":
             self.mode="neutral"
-            self.text_stuff("(・_・)", "neutral")
+            self.screenMessage("(・_・)", "neutral")
+        else:
+            logging.error("error in screenChange method")
 
-    def text_stuff(self, emoticon, state):
-        self.lcd.cursor_pos = (0, 2)
+    def screenMessage(self, emoticon, state):
+        # Centers face emoticon (row 2)
+        faceStartCol = (20 - len(emoticon)) // 2 
+        self.lcd.cursor_pos = (2, faceStartCol)
         self.lcd.write_string(emoticon)
-        self.lcd.cursor_pos = (1, 2)
+
+        # Centers the state of the pet text (row 3)
+        stateStartCol = (20 - len(state)) // 2
+        self.lcd.cursor_pos = (3, stateStartCol)
         self.lcd.write_string(state)
+
     def loadChar(self):
-        # Top Left
+        # Top left of pet
         char_0 = [
             0b11111, 0b11011, 0b10101, 0b10101,
             0b10110, 0b10111, 0b10111, 0b11101
         ]
 
-        # Top Right
+        # Top right of pet
         char_1 = [
             0b11111, 0b11011, 0b10101, 0b10101,
             0b01101, 0b11101, 0b11101, 0b10111
         ]
 
-        # Bottom Left
+        # Bottom left of pet
         char_2 = [
             0b10110, 0b11100, 0b11100, 0b10110,
             0b11011,0b11011, 0b11100, 0b11111
         ]
 
-        # Bottom Right
+        # Bottom right of pet
         char_3 = [
             0b11101, 0b10111, 0b10111, 0b01101,
             0b11011, 0b11011, 0b00111, 0b11111
         ]
+
         self.lcd.create_char(0, char_0)
         self.lcd.create_char(1, char_1)
         self.lcd.create_char(2, char_2)

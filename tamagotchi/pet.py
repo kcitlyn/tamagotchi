@@ -1,38 +1,45 @@
 from display import Display
+from inputHandler import sleepButton, Button, Sensors
+import logging
 
+MAX_STAT=10
+MIN_STAT=0
 class Stats:
     def __init__(self):
-        self.happiness = 5
-        self.hunger=5
-        self.sleep=5
-    def happinessChange(self, reason):
-        if self.happiness>0 and self.happiness<10:
+        self.joy = 5
+        self.hunger =5
+        self.sleep =5
+    def joyChange(self, reason):
+        if self.joy>MIN_STAT and self.joy<MAX_STAT:
             if reason=="petting":
-                self.happiness+=1
+                self.joy+=1
             elif reason== "no petting":
-                self.happiness-=.2
+                self.joy-=.2
+            else:
+                logging.error("The reason for joy change is undefined")
         else:
-            print("shes already so happy!")
+            logging.info("shes already so happy!")
     def hungerChange(self, reason):
-        if self.hunger>0 and self.hunger<10:
+        if self.hunger>MIN_STAT and self.hunger<MAX_STAT:
             if reason =="eat":
-                hunger+=1
+                self.hunger+=1
             if reason=="no eat":
-                hunger-=.2
+                self.hunger-=.2
             if reason=="sleep":
-                hunger-=.5
+                self.hunger-=.5
         else:
-            print("shes not hungry!")
-    def sleepChange(self, reason, state):
-        if self.sleep>0 and self.sleep<10:
+            logging.info("shes not hungry!")
+
+    def sleepChange(self, reason):
+        if self.sleep>MIN_STAT and self.sleep<MAX_STAT:
             if reason=="eating":
-                sleep-=.5
+                self.sleep-=.5
             if reason=="sleep":
-                sleep+=1
+                self.sleep+=1
             if reason=="no sleep":
-                sleep-=.1
+                self.sleep-=.1
         else:
-            print("shes not sleepy")
+            logging.info("she only sleeps at night")
 
 class Appearance:
     def __init__(self, stats, display):
@@ -40,11 +47,14 @@ class Appearance:
         self.display = display
 
     def changeFace(self):
-        if self.pet.hunger == 0 or self.pet.happiness==0 or self.pet.sleep==0:
-            self.Display.screenChange("dead")
-        elif self.pet.hunger>7 and self.pet.happiness>7 and self.pet.sleep>7:
-            self.Display.screenChange("happy")
-        elif self.pet.hunger<4 or self.pet.happiness<4 or self.pet.sleep<4:
-            self.Display.screenChange("angry")
+        if self.pet.hunger == 0 or self.pet.joy==0 or self.pet.sleep==0: #if any of these stats are zero, the pet is dead.
+            self.display.screenChange("dead")
+        elif self.pet.hunger>7 and self.pet.joy>7 and self.pet.sleep>7: #if all stats are above 7, the pet is happy
+            self.display.screenChange("joy")
+        elif self.pet.hunger<4 or self.pet.joy<4 or self.pet.sleep<4: #if the stats are below 4, the pet becomes angry
+            self.display.screenChange("angry")
+        elif sleepButton.was_pressed() and not Sensors.daylight(): #the pet can only sleep at nighttime.
+            self.display.screenChange("sleep")
+        else:
+            self.display.screenChange("neutral")
     
-        
