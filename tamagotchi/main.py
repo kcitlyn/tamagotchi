@@ -37,11 +37,12 @@ def main():
 
                     # Update the stats display here with latest values
                     screen.display_stats(pet.hunger, pet.sleep, pet.joy)
-                    
+
                     time.sleep(1)
             except KeyboardInterrupt:
                 logging.info("Program stopped by user.")
             finally:
+                screen.lcd.clear()
                 GPIO.cleanup()
         if startButton.is_held_for(REBOOT_HOLD_TIME):
             reboot_program()

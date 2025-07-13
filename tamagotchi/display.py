@@ -31,13 +31,14 @@ class Display:
     def screenChange(self, state):
         #clears emoticon and 'state' message but not character
         self.lcd.cursor_pos = (0, 4)
-        self.lcd.write_string(" " * 20)  # Clear column 4
+        self.lcd.write_string(" " * 16)  # Clear column 4
         self.lcd.cursor_pos = (0, 5)
-        self.lcd.write_string(" " * 20)  # Clear column 5
+        self.lcd.write_string(" " * 16)  # Clear column 5
 
         self.mode = state
+        
         if state == "starting":
-            self.screenMessage("Welcome!", "This is Tim")
+            self.screenMessage("hey", "tim")
         elif state == "joy":
             self.screenMessage("(^‿^)", "joy")
         elif state == "angry":
