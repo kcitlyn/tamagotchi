@@ -19,7 +19,8 @@ class Button():
             GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         else:
             GPIO.setup(self.pin, GPIO.IN)
-
+            
+        GPIO.remove_event_detect(self.pin)
         GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self._on_press, bouncetime=50)
         GPIO.add_event_detect(self.pin, GPIO.FALLING, callback=self._on_release, bouncetime=50)
 
