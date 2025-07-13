@@ -25,29 +25,10 @@ def reboot_program():
     python = sys.executable
     os.execl(python, python, *sys.argv)
 
-def start_game():
-    global sensors, face
-    if screen.mode == "start":
-        try:
-            sensors = Sensors(sleepButton, hungerButton)
-            face = Appearance(pet, screen, sleepButton)
-            screen.screenChange("joy")  # example state
-            while True:
-                sensors.touch(pet)
-                sensors.hunger(pet)
-                sensors.sleep(pet)
-                face.changeFace()
-                screen.display_stats(pet.hunger, pet.sleep, pet.joy)
-                time.sleep(1)
-        except KeyboardInterrupt:
-            logging.info("Program stopped by user.")
-        finally:
-            GPIO.cleanup()
-
 # Setup buttons with callbacks
 hungerButton = Button(21, "down")
 sleepButton = Button(20, "down")
-startButton = Button(16, "down", press_callback=start_game)
+startButton = Button(16, "down")
 
 def main():
     screen.screenChange("starting")
@@ -55,6 +36,22 @@ def main():
 
     # Idle loop for detecting long press reboot
     while True:
+        try:
+            sensors = Sensors(sleepButton, hungerButton)
+            face = Appearance(pet, screen, sleepButton)
+            screen.screenChange("joy")  # example state
+            while True:
+                screen.display_stats(pet.hunger, pet.sleep, pet.joy)
+                sensors.touch(pet)
+                sensors.hunger(pet)
+                sensors.sleep(pet)
+                face.changeFace()
+                time.sleep(1)
+        except KeyboardInterrupt:
+            logging.info("Program stopped by user.")
+        finally:
+            GPIO.cleanup()
+            
         if startButton.is_held_for(REBOOT_HOLD_TIME):
             reboot_program()
         time.sleep(0.1)
