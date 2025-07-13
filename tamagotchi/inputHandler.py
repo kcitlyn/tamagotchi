@@ -50,7 +50,7 @@ class Sensors:
             pet.happinessChange("no petting")
     @staticmethod
     def hunger(pet):
-        hungerPin=0; #add later
+        hungerPin=21
         hungerButton= Button(hungerPin, "down")
         if hungerButton.was_pressed():
             pet.hungerChange("eat")
@@ -59,7 +59,7 @@ class Sensors:
             pet.hungerChange("no eat")
     @staticmethod
     def sleep(pet):
-        sleepPin=0 #add later
+        sleepPin=20
         sleepButton= Button(sleepPin, "down")
         if sleepButton.was_pressed() and Sensors.daylight()==False:
             pet.sleepChange("sleep")
@@ -111,5 +111,5 @@ class Button():
                 self._hold_triggered = True  # only trigger once per hold
                 return True
         return False
-startPin=0 #add later
+startPin=16
 start_button = Button(startPin, "down")
