@@ -99,6 +99,7 @@ class Sensors:
         else:
             is_day=True
         return is_day
+    
     @staticmethod
     def touch(pet):
         ifTouched= Sensors.readChannel(ADC_ADDRESS, 0)
@@ -107,17 +108,15 @@ class Sensors:
         else:
             pet.joyChange("no petting")
 
-    @staticmethod
-    def hunger(pet):
-        if Sensors.hungerButton.was_pressed():
+    def hunger(self,pet):
+        if self.hungerButton.was_pressed():
             pet.hungerChange("eat")
             pet.sleepChange("eating")
         else:
             pet.hungerChange("no eat")
 
-    @staticmethod
-    def sleep(pet):
-        if Sensors.sleepButton.was_pressed():
+    def sleep(self,pet):
+        if self.sleepButton.was_pressed():
             if not Sensors.daylight():
                 pet.sleepChange("sleep")
                 pet.hungerChange("sleep")

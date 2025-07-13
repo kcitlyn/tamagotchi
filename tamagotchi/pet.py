@@ -12,7 +12,7 @@ class Appearance:
         self.sleepButton= sleepButton
 
     def changeFace(self):
-        selfButton=self.sleepButton
+        sleepButton=self.sleepButton
         if self.pet.hunger == 0 or self.pet.joy==0 or self.pet.sleep==0: #if any of these stats are zero, the pet is dead.
             self.display.screenChange("dead")
         elif self.pet.hunger>7 and self.pet.joy>7 and self.pet.sleep>7: #if all stats are above 7, the pet is happy
