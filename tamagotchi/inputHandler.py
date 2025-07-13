@@ -5,12 +5,12 @@ import time
 import logging
 from stats import Stats
 
-class Button():
+class Button:
     def __init__(self, pin, pullState="none"):
         self.pin = pin
         GPIO.setmode(GPIO.BCM)
 
-        # Determine the pull-up/down configuration
+        # Determine pull-up/down configuration
         if pullState == "down":
             pud = GPIO.PUD_DOWN
         elif pullState == "up":
@@ -20,12 +20,25 @@ class Button():
         else:
             raise ValueError("Invalid pullState. Choose 'up', 'down', or 'none'.")
 
-        # Setup the pin as input with the desired pull configuration
+        # Setup the pin with pull config
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=pud)
 
-        # Ensure no duplicate edge detection is added
+        # Initialize button state
+        self._pressed = False
+        self._pressed_and_released = False
+        self._press_time = None
+        self._hold_triggered = False
+
+        # Set up event detection for both press and release
         GPIO.remove_event_detect(self.pin)
-        GPIO.add_event_detect(self.pin, GPIO.RISING, bouncetime=200)
+        GPIO.add_event_detect(self.pin, GPIO.BOTH, bouncetime=200)
+        GPIO.add_event_callback(self.pin, self._handle_edge)
+
+    def _handle_edge(self, channel):
+        if GPIO.input(self.pin):  # Rising edge (button pressed)
+            self._on_press(channel)
+        else:  # Falling edge (button released)
+            self._on_release(channel)
 
     def _on_press(self, channel):
         self._pressed = True
@@ -49,7 +62,7 @@ class Button():
         if self._pressed and self._press_time is not None:
             held_time = time.time() - self._press_time
             if held_time >= seconds and not self._hold_triggered:
-                self._hold_triggered = True  # only trigger once per hold
+                self._hold_triggered = True
                 return True
         return False
 

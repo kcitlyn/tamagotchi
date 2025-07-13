@@ -19,19 +19,19 @@ startButton = Button(16, "down")
 def main():
     pet = Stats()
     screen = Display()
-    face = Appearance(pet, screen)
+    face = Appearance(pet, screen, sleepButton)
     REBOOT_HOLD_TIME = 15  # seconds to hold button to reboot
 
     screen.screenChange("starting")
     time.sleep(2)
 
     while True:
-        if Button.startButton.was_pressed() and screen.mode == "start":
+        if startButton.was_pressed() and screen.mode == "start":
             try:
                 while True:
-                    Sensors.touch(pet)
-                    Sensors.hunger(pet)
-                    Sensors.sleep(pet)
+                    Sensors.touch(pet, sleepButton, hungerButton)
+                    Sensors.hunger(pet, sleepButton, hungerButton)
+                    Sensors.sleep(pet, sleepButton, hungerButton)
 
                     face.changeFace()
                     time.sleep(1)
@@ -39,7 +39,7 @@ def main():
                 logging.info("Program stopped by user.")
             finally:
                 GPIO.cleanup()
-        if Button.is_held_for(REBOOT_HOLD_TIME):
+        if startButton.is_held_for(REBOOT_HOLD_TIME):
             reboot_program()
         time.sleep(0.1)  # to avoid busy waiting
 
