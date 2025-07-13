@@ -5,15 +5,16 @@ screenAddress=0x27 # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0
 class Display:
     def __init__(self):
         self.lcd = CharLCD(i2c_expander='PCF8574', address=screenAddress, port=1,
-                    cols=20, rows=4, dotsize=8,
-                    charmap='A02',
-                    auto_linebreaks=False,
-                    backlight_enabled=False) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
+                    cols=20, rows=4,
+                    backlight_enabled=True) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
+        self.lcd.clear()
         self.loadChar()
         self.lcd.cursor_pos = (0, 0)          # Row 2, column 4
         self.lcd.write_string('\x00\x01')    # Top row of the face
         self.lcd.cursor_pos = (1, 0)          # Row 3, column 4
         self.lcd.write_string('\x02\x03')    # Bottom row of the face
+        self.mode = None
+
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
         self.lcd.cursor_pos = (0, 14)
@@ -28,24 +29,24 @@ class Display:
         self.lcd.write_string(f"j:{joy:.1f}")
 
     def screenChange(self, state):
-        self.lcd.clear()
+        #clears emoticon and 'state' message but not character
+        self.lcd.cursor_pos = (2, 0)
+        self.lcd.write_string(" " * 20)  # Clear row 2
+        self.lcd.cursor_pos = (3, 0)
+        self.lcd.write_string(" " * 20)  # Clear row 3
+
+        self.mode = state
         if state == "starting":
-            self.mode="start"
             self.screenMessage("Welcome!", "This is Tim")
         elif state == "joy":
-            self.mode="joy"
             self.screenMessage("(^‿^)", "joy")
         elif state == "angry":
-            self.mode="angry"
             self.screenMessage("(>_<)", "angry")
         elif state == "sleep":
-            self.mode="sleep"
             self.screenMessage("(-.-)Zzz", "sleep")
         elif state == "dead":
-            self.mode="dead"
             self.screenMessage("x_x", "dead")
         elif state == "neutral":
-            self.mode="neutral"
             self.screenMessage("(・_・)", "neutral")
         else:
             logging.error("error in screenChange method")

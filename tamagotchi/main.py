@@ -20,8 +20,8 @@ def main():
     pet = Stats()
     screen = Display()
     face = Appearance(pet, screen, sleepButton)
+    sensors = Sensors(sleepButton, hungerButton)
     REBOOT_HOLD_TIME = 15  # seconds to hold button to reboot
-
     screen.screenChange("starting")
     time.sleep(2)
 
@@ -29,11 +29,15 @@ def main():
         if startButton.was_pressed() and screen.mode == "start":
             try:
                 while True:
-                    Sensors.touch(pet, sleepButton, hungerButton)
-                    Sensors.hunger(pet, sleepButton, hungerButton)
-                    Sensors.sleep(pet, sleepButton, hungerButton)
+                    sensors.touch(pet)
+                    sensors.hunger(pet)
+                    sensors.sleep(pet)
 
                     face.changeFace()
+
+                    # Update the stats display here with latest values
+                    screen.display_stats(pet.hunger, pet.sleep, pet.joy)
+                    
                     time.sleep(1)
             except KeyboardInterrupt:
                 logging.info("Program stopped by user.")
