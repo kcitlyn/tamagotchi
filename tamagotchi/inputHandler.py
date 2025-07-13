@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import smbus
 import time
 import logging
-from pet import Stats
+from stats import Stats
 
 class Button():
     def __init__(self, pin, pullState):
@@ -47,6 +47,7 @@ class Button():
                 self._hold_triggered = True  # only trigger once per hold
                 return True
         return False
+    
 #channels for ADC module, if more sensors are added
 hungerButton = Button(21, "down")
 sleepButton= Button(20, "down")
