@@ -11,6 +11,9 @@ from inputHandler import Sensors, Button, startButton
 from pet import Appearance
 import stats
 
+hungerButton = Button(21, "down")
+sleepButton = Button(20, "down")
+
 def main():
     pet = stats()
     screen = Display()

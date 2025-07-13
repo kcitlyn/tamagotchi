@@ -19,7 +19,7 @@ class Button():
             GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         else:
             GPIO.setup(self.pin, GPIO.IN)
-            
+
         GPIO.remove_event_detect(self.pin)
         GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self._on_press, bouncetime=50)
         GPIO.add_event_detect(self.pin, GPIO.FALLING, callback=self._on_release, bouncetime=50)
@@ -49,11 +49,7 @@ class Button():
                 self._hold_triggered = True  # only trigger once per hold
                 return True
         return False
-    
-#channels for ADC module, if more sensors are added
-hungerButton = Button(21, "down")
-sleepButton= Button(20, "down")
-startButton = Button(16, "down")
+
 ADC_ADDRESS = 0X4B
 TOUCH_THRESHOLD = 10
 BRIGHTNESS_THRESHOLD = .5
@@ -68,6 +64,9 @@ class Sensors:
         11100100, #input channel a6
         11110100 #input channel a7
     ]
+    def __init__(self, sleepButton, hungerButton):
+        self.sleepButton = sleepButton
+        self.hungerButton=hungerButton
     @staticmethod
     def readChannel(address, channel):
         bus= smbus.SMBus(1)
