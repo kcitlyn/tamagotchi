@@ -7,12 +7,13 @@ import sys
 import logging
 
 from display import Display
-from inputHandler import Sensors, Button, startButton
+from inputHandler import Sensors, Button
 from pet import Appearance
 import stats
 
 hungerButton = Button(21, "down")
 sleepButton = Button(20, "down")
+startButton = Button(16, "none")
 
 def main():
     pet = stats()
