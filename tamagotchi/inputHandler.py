@@ -5,11 +5,10 @@ import logging
 from stats import Stats
 
 class Button:
-    def __init__(self, pin, pullState="none"):
+    def __init__(self, pin, pullState="none", press_callback=None):
         self.pin = pin
-        GPIO.setmode(GPIO.BCM)
+        self.press_callback = press_callback
 
-        # Determine pull-up/down configuration
         if pullState == "down":
             pud = GPIO.PUD_DOWN
         elif pullState == "up":
@@ -19,43 +18,27 @@ class Button:
         else:
             raise ValueError("Invalid pullState. Choose 'up', 'down', or 'none'.")
 
-        # Setup the pin with pull config
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=pud)
 
-        # Initialize button state
         self._pressed = False
-        self._pressed_and_released = False
         self._press_time = None
         self._hold_triggered = False
 
-        # Set up event detection for both press and release
         GPIO.remove_event_detect(self.pin)
-        GPIO.add_event_detect(self.pin, GPIO.BOTH, bouncetime=200)
+        GPIO.add_event_detect(self.pin, GPIO.BOTH, bouncetime=75)
         GPIO.add_event_callback(self.pin, self._handle_edge)
 
     def _handle_edge(self, channel):
-        if GPIO.input(self.pin):  # Rising edge (button pressed)
+        if GPIO.input(self.pin):  # Rising edge (press)
             self._on_press(channel)
-        else:  # Falling edge (button released)
-            self._on_release(channel)
 
     def _on_press(self, channel):
         self._pressed = True
         self._press_time = time.time()
         self._hold_triggered = False
 
-    def _on_release(self, channel):
-        if self._pressed:
-            self._pressed_and_released = True
-            self._pressed = False
-        self._press_time = None
-        self._hold_triggered = False
-
-    def was_pressed(self):
-        if self._pressed_and_released:
-            self._pressed_and_released = False
-            return True
-        return False
+        if self.press_callback:
+            self.press_callback()
 
     def is_held_for(self, seconds=15):
         if self._pressed and self._press_time is not None:
