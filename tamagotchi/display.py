@@ -9,57 +9,45 @@ class Display:
                     backlight_enabled=True) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
         self.lcd.clear()
         self.loadChar()
-        self.lcd.cursor_pos = (0, 0)          # Row 2, column 4
+        self.lcd.cursor_pos = (0, 0)          # Row 1, column 1
         self.lcd.write_string('\x00\x01')    # Top row of the face
-        self.lcd.cursor_pos = (1, 0)          # Row 3, column 4
+        self.lcd.cursor_pos = (1, 0)          # Row 2, column 2
         self.lcd.write_string('\x02\x03')    # Bottom row of the face
-        self.mode = None
 
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
-        self.lcd.cursor_pos = (1, 8)
-        self.lcd.write_string(f"h:{hunger:.1f}")
-
-        # Row 1: Sleep 's: x'
-        self.lcd.cursor_pos = (1, 11)
-        self.lcd.write_string(f"s:{sleep:.1f}")
-
-        # Row 2: Joy 'j: x'
-        self.lcd.cursor_pos = (1, 14)
-        self.lcd.write_string(f"j:{joy:.1f}")
+        self.lcd.cursor_pos = (1, 7)
+        self.lcd.write_string(f"h:{hunger:.1f} s:{sleep:.1f} j:{joy:.1f}")
 
     def screenChange(self, state):
-        #clears emoticon and 'state' message but not character
+        # clears emoticon and 'state' message but not character
         self.lcd.cursor_pos = (0, 4)
-        self.lcd.write_string(" " * 16)  # Clear column 4
-        self.lcd.cursor_pos = (0, 5)
-        self.lcd.write_string(" " * 16)  # Clear column 5
+        self.lcd.write_string(" " * 12)  # Clear cols 4 through 15 on row 0
 
         self.mode = state
-        
+
         if state == "starting":
-            self.screenMessage("hey", "tim")
+            self.screenMessage("hey!!", "tim")
         elif state == "joy":
             self.screenMessage("(^‿^)", "joy")
         elif state == "angry":
             self.screenMessage("(>_<)", "angry")
         elif state == "sleep":
-            self.screenMessage("(-.-)Zz", "sleep")
+            self.screenMessage("(-.-)", "Zzzz")
         elif state == "dead":
-            self.screenMessage("x_x", "dead")
+            self.screenMessage("(x_x)", "dead")
         elif state == "neutral":
-            self.screenMessage("(・_・)", "neutral")
+            self.screenMessage("(・_・)", "meh")
         else:
             logging.error("error in screenChange method")
 
     def screenMessage(self, emoticon, state):
-        # Centers face emoticon (row 2)
-        faceStartCol = (15 - len(emoticon)) // 2 
+        faceStartCol = 4
         self.lcd.cursor_pos = (0, faceStartCol)
         self.lcd.write_string(emoticon)
 
         # Centers the state of the pet text (row 3)
-        stateStartCol = (15 - len(state)) // 2
+        stateStartCol = 10
         self.lcd.cursor_pos = (0, stateStartCol)
         self.lcd.write_string(state)
 
