@@ -5,7 +5,7 @@ screenAddress=0x27 # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0
 class Display:
     def __init__(self):
         self.lcd = CharLCD(i2c_expander='PCF8574', address=screenAddress, port=1,
-                    cols=20, rows=4,
+                    cols=16, rows=2, #adjust according to what ur lcd screen supports
                     backlight_enabled=True) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
         self.lcd.clear()
         self.loadChar()
@@ -17,23 +17,23 @@ class Display:
 
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
-        self.lcd.cursor_pos = (0, 14)
+        self.lcd.cursor_pos = (1, 8)
         self.lcd.write_string(f"h:{hunger:.1f}")
 
         # Row 1: Sleep 's: x'
-        self.lcd.cursor_pos = (1, 14)
+        self.lcd.cursor_pos = (1, 11)
         self.lcd.write_string(f"s:{sleep:.1f}")
 
         # Row 2: Joy 'j: x'
-        self.lcd.cursor_pos = (2, 14)
+        self.lcd.cursor_pos = (1, 14)
         self.lcd.write_string(f"j:{joy:.1f}")
 
     def screenChange(self, state):
         #clears emoticon and 'state' message but not character
-        self.lcd.cursor_pos = (2, 0)
-        self.lcd.write_string(" " * 20)  # Clear row 2
-        self.lcd.cursor_pos = (3, 0)
-        self.lcd.write_string(" " * 20)  # Clear row 3
+        self.lcd.cursor_pos = (0, 4)
+        self.lcd.write_string(" " * 20)  # Clear column 4
+        self.lcd.cursor_pos = (0, 5)
+        self.lcd.write_string(" " * 20)  # Clear column 5
 
         self.mode = state
         if state == "starting":
@@ -43,7 +43,7 @@ class Display:
         elif state == "angry":
             self.screenMessage("(>_<)", "angry")
         elif state == "sleep":
-            self.screenMessage("(-.-)Zzz", "sleep")
+            self.screenMessage("(-.-)Zz", "sleep")
         elif state == "dead":
             self.screenMessage("x_x", "dead")
         elif state == "neutral":
@@ -53,13 +53,13 @@ class Display:
 
     def screenMessage(self, emoticon, state):
         # Centers face emoticon (row 2)
-        faceStartCol = (20 - len(emoticon)) // 2 
-        self.lcd.cursor_pos = (2, faceStartCol)
+        faceStartCol = (15 - len(emoticon)) // 2 
+        self.lcd.cursor_pos = (0, faceStartCol)
         self.lcd.write_string(emoticon)
 
         # Centers the state of the pet text (row 3)
-        stateStartCol = (20 - len(state)) // 2
-        self.lcd.cursor_pos = (3, stateStartCol)
+        stateStartCol = (15 - len(state)) // 2
+        self.lcd.cursor_pos = (0, stateStartCol)
         self.lcd.write_string(state)
 
     def loadChar(self):
