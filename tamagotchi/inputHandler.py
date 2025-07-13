@@ -21,6 +21,7 @@ class Button:
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=pud)
 
         self._pressed = False
+        self._pressed_and_released = False
         self._press_time = None
         self._hold_triggered = False
 
@@ -31,6 +32,8 @@ class Button:
     def _handle_edge(self, channel):
         if GPIO.input(self.pin):  # Rising edge (press)
             self._on_press(channel)
+        else:  # Falling edge (release)
+            self._on_release(channel)
 
     def _on_press(self, channel):
         self._pressed = True
@@ -39,6 +42,19 @@ class Button:
 
         if self.press_callback:
             self.press_callback()
+
+    def _on_release(self, channel):
+        if self._pressed:
+            self._pressed_and_released = True
+            self._pressed = False
+        self._press_time = None
+        self._hold_triggered = False
+
+    def was_pressed(self):
+        if self._pressed_and_released:
+            self._pressed_and_released = False
+            return True
+        return False
 
     def is_held_for(self, seconds=15):
         if self._pressed and self._press_time is not None:
