@@ -1,14 +1,15 @@
 from display import Display
-from inputHandler import sleepButton, Button, Sensors
+from inputHandler import Sensors
 import logging
 
 MAX_STAT=10
 MIN_STAT=0
 
 class Appearance:
-    def __init__(self, stats, display):
+    def __init__(self, stats, display, sleepButton):
         self.pet = stats
         self.display = display
+        self.sleepButton= sleepButton
 
     def changeFace(self):
         from inputHandler import sleepButton

@@ -64,9 +64,11 @@ class Sensors:
         11100100, #input channel a6
         11110100 #input channel a7
     ]
+
     def __init__(self, sleepButton, hungerButton):
         self.sleepButton = sleepButton
         self.hungerButton=hungerButton
+        
     @staticmethod
     def readChannel(address, channel):
         bus= smbus.SMBus(1)
