@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import smbus
 import time
 import logging
-from pet import Stats, hunger, sleep, joy
+from pet import Stats
 class Button():
     def __init__(self, pin, pullState):
         self.pin = pin
