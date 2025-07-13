@@ -3,6 +3,7 @@ import smbus
 import time
 import logging
 from pet import Stats
+
 class Button():
     def __init__(self, pin, pullState):
         self.pin = pin
