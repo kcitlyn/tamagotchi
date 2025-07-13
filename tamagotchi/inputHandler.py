@@ -6,23 +6,26 @@ import logging
 from stats import Stats
 
 class Button():
-    def __init__(self, pin, pullState):
+    def __init__(self, pin, pullState="none"):
         self.pin = pin
-        self._pressed_and_released = False
-        self._pressed = False
-        self._press_time = None  # store time when button was pressed
-        self._hold_triggered = False
+        GPIO.setmode(GPIO.BCM)
 
+        # Determine the pull-up/down configuration
         if pullState == "down":
-            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            pud = GPIO.PUD_DOWN
         elif pullState == "up":
-            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            pud = GPIO.PUD_UP
+        elif pullState == "none":
+            pud = GPIO.PUD_OFF
         else:
-            GPIO.setup(self.pin, GPIO.IN)
+            raise ValueError("Invalid pullState. Choose 'up', 'down', or 'none'.")
 
+        # Setup the pin as input with the desired pull configuration
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down=pud)
+
+        # Ensure no duplicate edge detection is added
         GPIO.remove_event_detect(self.pin)
-        GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self._on_press, bouncetime=50)
-        GPIO.add_event_detect(self.pin, GPIO.FALLING, callback=self._on_release, bouncetime=50)
+        GPIO.add_event_detect(self.pin, GPIO.RISING, bouncetime=200)
 
     def _on_press(self, channel):
         self._pressed = True
@@ -87,10 +90,10 @@ class Sensors:
                 logging.error("there is no such channel as "+ str(channel))
         else:
             logging.error("address for i2c connection not found")
-        #if address== insertDiffi2cAddress: <-- if u want to use multiple adc devices
+        
     @staticmethod
     def daylight():
-        brightness=Sensors.readChannel(ADC_ADDRESS,1)/255
+        brightness=(Sensors.readChannel(ADC_ADDRESS,1))/255
         if 0 < brightness < BRIGHTNESS_THRESHOLD:
             is_day=False
         else:
@@ -114,7 +117,7 @@ class Sensors:
 
     @staticmethod
     def sleep(pet):
-        if sleepButton.was_pressed():
+        if Sensors.sleepButton.was_pressed():
             if not Sensors.daylight():
                 pet.sleepChange("sleep")
                 pet.hungerChange("sleep")
