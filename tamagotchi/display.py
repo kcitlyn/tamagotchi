@@ -16,13 +16,13 @@ class Display:
 
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
-        self.lcd.cursor_pos = (1, 7)
-        self.lcd.write_string(f"h:{hunger:.1f} s:{sleep:.1f} j:{joy:.1f}")
+        self.lcd.cursor_pos = (1, 5)
+        self.lcd.write_string(f"h:{round(hunger)} s:{round(sleep)} j:{round(joy)}")=
 
     def screenChange(self, state):
         # clears emoticon and 'state' message but not character
-        self.lcd.cursor_pos = (0, 4)
-        self.lcd.write_string(" " * 12)  # Clear cols 4 through 15 on row 0
+        self.lcd.cursor_pos = (0, 5)
+        self.lcd.write_string(" " * 11)
 
         self.mode = state
 
@@ -31,9 +31,9 @@ class Display:
         elif state == "joy":
             self.screenMessage("(^‿^)", "joy")
         elif state == "angry":
-            self.screenMessage("(>_<)", "angry")
+            self.screenMessage("(>_<)", "mad")
         elif state == "sleep":
-            self.screenMessage("(-.-)", "Zzzz")
+            self.screenMessage("(-.-)", "Zzz")
         elif state == "dead":
             self.screenMessage("(x_x)", "dead")
         elif state == "neutral":
@@ -42,14 +42,25 @@ class Display:
             logging.error("error in screenChange method")
 
     def screenMessage(self, emoticon, state):
-        faceStartCol = 4
-        self.lcd.cursor_pos = (0, faceStartCol)
-        self.lcd.write_string(emoticon)
+        if state=="dead":
+            self.lcd.clear()
+            stateStartCol = 10
+            self.lcd.cursor_pos = (0, stateStartCol)
+            self.lcd.write_string(state)
+            faceStartCol = 4
+            self.lcd.cursor_pos = (0, faceStartCol)
+            self.lcd.write_string(emoticon)
+            self.lcd.cursor_pos(1,0)
+            self.lcd.write_string("holdred2restart")
+        else:
+            faceStartCol = 4
+            self.lcd.cursor_pos = (0, faceStartCol)
+            self.lcd.write_string(emoticon)
 
-        # Centers the state of the pet text (row 3)
-        stateStartCol = 10
-        self.lcd.cursor_pos = (0, stateStartCol)
-        self.lcd.write_string(state)
+            # Centers the state of the pet text (row 3)
+            stateStartCol = 10
+            self.lcd.cursor_pos = (0, stateStartCol)
+            self.lcd.write_string(state)
 
     def loadChar(self):
         # Top left of pet
