@@ -17,7 +17,7 @@ class Display:
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
         self.lcd.cursor_pos = (1, 5)
-        self.lcd.write_string(f"h:{round(hunger)} s:{round(sleep)} j:{round(joy)}")=
+        self.lcd.write_string(f"h:{round(hunger)} s:{round(sleep)} j:{round(joy)}")
 
     def screenChange(self, state):
         # clears emoticon and 'state' message but not character
