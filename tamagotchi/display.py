@@ -1,90 +1,140 @@
 from RPLCD.i2c import CharLCD
 import logging
-screenAddress=0x27 # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0x27
+
+#check screen address using i2cdetect -y 1
+screen_address=0x27 # If piggy-back board is PCF8574AT chip, 0x3F; if PCF8574T, 0x27. 
+
 
 class Display:
     def __init__(self):
-        self.lcd = CharLCD(i2c_expander='PCF8574', address=screenAddress, port=1,
+        self.lcd = CharLCD(i2c_expander='PCF8574', address=screen_address, port=1,
                     cols=16, rows=2, #adjust according to what ur lcd screen supports
                     backlight_enabled=True) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
         self.lcd.clear()
-        self.loadChar()
+        self.load_character()
         self.lcd.cursor_pos = (0, 0)          
-        self.lcd.write_string('\x00\x01')    # writes top row of the face
+        self.lcd.write_string('\x00\x01\x02')    # writes top row of the face
         self.lcd.cursor_pos = (1, 0)
-        self.lcd.write_string('\x02\x03')    # writes bottom row of the face
+        self.lcd.write_string('\x03\x04\x05')    # writes bottom row of the face
 
     def display_stats(self, hunger, sleep, joy):
-        # Row 0: Hunger 'h: x'
+        # Row 0: Hunger 'h:x s:y j:z'
         self.lcd.cursor_pos = (1, 4)
         self.lcd.write_string(f"h:{round(hunger)} s:{round(sleep)} j:{round(joy)}")
 
-    def screenChange(self, state):
+    def screen_change(self, state):
         # clears emoticon and 'state' message but not character
         self.lcd.cursor_pos = (0, 5)
         self.lcd.write_string(" " * 11)
 
         self.mode = state
-
+        #defines the emoticon and emotion pet is feeling on lcd
         if state == "starting":
-            self.screenMessage("hey!!", "tim")
+            self.screen_message("hey!!", "tim")
         elif state == "joy":
-            self.screenMessage("(^‿^)", "joy")
+            self.screen_message("(^‿^)", "joy")
         elif state == "angry":
-            self.screenMessage("(>_<)", "mad")
+            self.screen_message("(>_<)", "mad")
         elif state == "sleep":
-            self.screenMessage("(-.-)", "Zzz")
+            self.screen_message("(-.-)", "Zzz")
         elif state == "dead":
-            self.screenMessage("(x_x)", "dead")
+            self.screen_message("(x_x)", "dead")
         elif state == "neutral":
-            self.screenMessage("('_')", "meh")
+            self.screen_message("('_')", "meh")
         else:
-            logging.error("error in screenChange method")
+            logging.error("error in screen_change method")
 
-    def screenMessage(self, emoticon, state):
+    def screen_message(self, emoticon, state):
+        #actually writes out information on lcd
         if state=="dead":
             self.lcd.clear()
-            stateStartCol = 10
-            self.lcd.cursor_pos = (0, stateStartCol)
+            state_start_column = 10
+            self.lcd.cursor_pos = (0, state_start_column)
             self.lcd.write_string(state)
-            faceStartCol = 4
-            self.lcd.cursor_pos = (0, faceStartCol)
+            face_start_column = 4
+            self.lcd.cursor_pos = (0, face_start_column)
             self.lcd.write_string(emoticon)
             self.lcd.cursor_pos= (1,0)
             self.lcd.write_string("holdred2restart")
         else:
-            faceStartCol = 4
-            self.lcd.cursor_pos = (0, faceStartCol)
+            face_start_column = 4
+            self.lcd.cursor_pos = (0, face_start_column)
             self.lcd.write_string(emoticon)
 
             # Centers the state of the pet text (row 3)
-            stateStartCol = 10
-            self.lcd.cursor_pos = (0, stateStartCol)
+            state_start_column = 10
+            self.lcd.cursor_pos = (0, state_start_column)
             self.lcd.write_string(state)
 
-    def loadChar(self):
-        # Top left of pet
+    def load_character(self):
+        # top left of character
         char_0 = [
-            0b11111, 0b11011, 0b10101, 0b10101,
-            0b10110, 0b10111, 0b10111, 0b11101
+            0b00000,
+            0b00100,
+            0b01010,
+            0b01001,
+            0b01000,
+            0b00000,
+            0b00000,
+            0b11010
         ]
 
-        # Top right of pet
+        # top middle of character
         char_1 = [
-            0b11111, 0b11011, 0b10101, 0b10101,
-            0b01101, 0b11101, 0b11101, 0b10111
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b11111,
+            0b01010,
+            0b01010,
+            0b00000
         ]
 
-        # Bottom left of pet
+        # top right of character
         char_2 = [
-            0b10110, 0b11100, 0b11100, 0b10110,
-            0b11011,0b11011, 0b11100, 0b11111
+            0b00000,
+            0b00100,
+            0b01010,
+            0b10010,
+            0b00010,
+            0b00000,
+            0b00000,
+            0b01011
         ]
 
-        # Bottom right of pet
+        # bottom left of character
         char_3 = [
-            0b11101, 0b10111, 0b10111, 0b01101,
-            0b11011, 0b11011, 0b00111, 0b11111
+            0b11000,
+            0b00000,
+            0b00100,
+            0b00011,
+            0b01000,
+            0b01101,
+            0b00110,
+            0b00010
+        ]
+        # bottom middle of character
+        char_4 = [
+            0b00100,
+            0b01010,
+            0b00000,
+            0b11111,
+            0b01010,
+            0b10001,
+            0b00101,
+            0b10101
+        ]
+        # bottom right of character
+        char_5 = [
+            0b00011,
+            0b00000,
+            0b00100,
+            0b11000,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000
         ]
 
         self.lcd.create_char(0, char_0)

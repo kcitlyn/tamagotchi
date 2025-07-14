@@ -31,13 +31,13 @@ class Stats:
     def sleep(self, value):
         self._sleep = max(MIN_STAT, min(MAX_STAT, value))
 
-    def joyChange(self, reason):
+    def joy_change(self, reason):
         if reason == "petting":
             self.joy += 1
         elif reason == "no petting":
             self.joy -= 0.2
 
-    def hungerChange(self, reason):
+    def hunger_change(self, reason):
         if reason == "eat":
             self.hunger += 1
         elif reason == "no eat":
@@ -45,7 +45,7 @@ class Stats:
         elif reason == "sleep":
             self.hunger -= 0.5
 
-    def sleepChange(self, reason, state=None):  # kept your parameter for compatibility
+    def sleep_change(self, reason, state=None):  # kept your parameter for compatibility
         if reason == "eating":
             self.sleep -= 0.5
         elif reason == "sleep":

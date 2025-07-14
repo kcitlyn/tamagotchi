@@ -4,6 +4,8 @@ import time
 import logging
 from stats import Stats
 
+bus = smbus.SMBus(1)
+
 class Button:
     def __init__(self, pin, pullState="none", press_callback=None):
         self.pin = pin
@@ -16,7 +18,7 @@ class Button:
         elif pullState == "none":
             pud = GPIO.PUD_OFF
         else:
-            raise ValueError("Invalid pullState. Choose 'up', 'down', or 'none'.")
+            logging.error("Invalid pullState. Choose 'up', 'down', or 'none'.")
 
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=pud)
 
@@ -30,9 +32,9 @@ class Button:
         GPIO.add_event_callback(self.pin, self._handle_edge)
 
     def _handle_edge(self, channel):
-        if GPIO.input(self.pin):  # Rising edge (press)
+        if GPIO.input(self.pin):  # rising edge (press)
             self._on_press(channel)
-        else:  # Falling edge (release)
+        else:  # falling edge (release)
             self._on_release(channel)
 
     def _on_press(self, channel):
@@ -65,27 +67,27 @@ class Button:
         return False
 
 ADC_ADDRESS = 0X4B
-TOUCH_THRESHOLD = 10
+TOUCH_THRESHOLD = 60
 BRIGHTNESS_THRESHOLD = .5
-class Sensors:
-    channels=[
-        10000100, #input channel a0
-        10010100, #input channel a1
-        10100100, #input channel a2
-        10110100, #input channel a3
-        11000100, #input channel a4
-        11010100, #input channel a5
-        11100100, #input channel a6
-        11110100 #input channel a7
-    ]
 
-    def __init__(self, sleepButton, hungerButton):
-        self.sleepButton = sleepButton
-        self.hungerButton=hungerButton
+class Sensors:
+    channels = [
+    0x84,  # channel 0
+    0xC4,  # channel 1
+    0x94,  # channel 2
+    0xD4,  # channel 3
+    0xA4,  # channel 4
+    0xE4,  # channel 5
+    0xB4,  # channel 6
+    0xF4   # channel 7
+]
+
+    def __init__(self, sleep_button, hunger_button):
+        self.sleep_button = sleep_button
+        self.hunger_button=hunger_button
         
     @staticmethod
-    def readChannel(address, channel):
-        bus= smbus.SMBus(1)
+    def read_channel(address, channel):
         command=Sensors.channels[channel] #this assigns sensor to specified channel in method
         if address==ADC_ADDRESS:
             if channel>-1 and channel<7: #there are only 8 channels on ADC module (ADS7830)
@@ -95,16 +97,15 @@ class Sensors:
                     value = bus.read_byte(address)
                     return value
                 except IOError:
-                    logging.error("I²C read/write error with "+ str(channel))
+                    logging.error("I2C read/write error with "+ str(channel))
                     return 0
             else:
                 logging.error("there is no such channel as "+ str(channel))
         else:
             logging.error("address for i2c connection not found")
-        
     @staticmethod
     def daylight():
-        brightness=(Sensors.readChannel(ADC_ADDRESS,1))/255
+        brightness=(Sensors.read_channel(ADC_ADDRESS,1))/255
         print(brightness)
         if 0 < brightness < BRIGHTNESS_THRESHOLD:
             is_day=False
@@ -114,25 +115,25 @@ class Sensors:
     
     @staticmethod
     def touch(pet):
-        ifTouched= Sensors.readChannel(ADC_ADDRESS, 0)
-        if ifTouched>TOUCH_THRESHOLD:
-            pet.joyChange("petting")
+        _if_touched= Sensors.read_channel(ADC_ADDRESS, 0)
+        if _if_touched>TOUCH_THRESHOLD:
+            pet.joy_change("petting")
         else:
-            pet.joyChange("no petting")
+            pet.joy_change("no petting")
 
     def hunger(self,pet):
-        if self.hungerButton.was_pressed():
-            pet.hungerChange("eat")
-            pet.sleepChange("eating")
+        if self.hunger_button.was_pressed():
+            pet.hunger_change("eat")
+            pet.sleep_change("eating")
         else:
-            pet.hungerChange("no eat")
+            pet.hunger_change("no eat")
 
     def sleep(self,pet):
-        if self.sleepButton.was_pressed():
+        if self.sleep_button.was_pressed():
             if not Sensors.daylight():
-                pet.sleepChange("sleep")
-                pet.hungerChange("sleep")
+                pet.sleep_change("sleep")
+                pet.hunger_change("sleep")
             else:
                 logging.info("It must be night for her to sleep.")
         else:
-            pet.sleepChange("no sleep")
+            pet.sleep_change("no sleep")

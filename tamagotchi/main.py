@@ -1,5 +1,5 @@
 from display import Display
-from inputHandler import Sensors, Button
+from tamagotchi.input_handler import Sensors, Button
 from pet import Appearance
 from stats import Stats
 
@@ -11,7 +11,7 @@ import logging
 
 GPIO.setmode(GPIO.BCM)
 
-REBOOT_HOLD_TIME = 15
+REBOOT_HOLD_TIME = 5
 
 # These are global so callback can access them
 pet = Stats()
@@ -26,32 +26,34 @@ def reboot_program():
     os.execl(python, python, *sys.argv)
 
 # Setup buttons with callbacks
-hungerButton = Button(21, "down")
-sleepButton = Button(20, "down")
-startButton = Button(16, "down")
+hunger_button = Button(21, "down")
+sleep_button = Button(20, "down")
+start_button = Button(16, "down")
 
 def main():
-    screen.screenChange("starting")
+    screen.screen_change("starting")
     time.sleep(2)
 
     while True:
         try:
-            sensors = Sensors(sleepButton, hungerButton)
-            face = Appearance(pet, screen, sleepButton)
-            screen.screenChange("joy")  # example state
+            sensors = Sensors(sleep_button, hunger_button)
+            face = Appearance(pet, screen, sleep_button)
+            screen.screen_change("joy")  # example state
             while True:
-                screen.display_stats(pet.hunger, pet.sleep, pet.joy) #constantly reupdates pet stats to lcd
-                
                 #checks sensor data if user is interacting
                 sensors.touch(pet)
                 sensors.hunger(pet)
                 sensors.sleep(pet)
 
                 face.changeFace()
-                time.sleep(.5)
 
-                if startButton.is_held_for(REBOOT_HOLD_TIME): #if start button is held for reboot time, the game restarts
+                if pet.hunger!=0 and pet.joy!=0 and pet.sleep!=0:
+                    screen.display_stats(pet.hunger, pet.sleep, pet.joy) #constantly reupdates pet stats to lcd
+        
+                if start_button.is_held_for(REBOOT_HOLD_TIME): #if start button is held for reboot time, the game restarts
                     reboot_program()
+                time.sleep(1)
+    
         except KeyboardInterrupt:
             logging.info("Program stopped by user.")
         finally:
