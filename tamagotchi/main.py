@@ -34,26 +34,29 @@ def main():
     screen.screenChange("starting")
     time.sleep(2)
 
-    # Idle loop for detecting long press reboot
     while True:
         try:
             sensors = Sensors(sleepButton, hungerButton)
             face = Appearance(pet, screen, sleepButton)
             screen.screenChange("joy")  # example state
             while True:
-                screen.display_stats(pet.hunger, pet.sleep, pet.joy)
+                screen.display_stats(pet.hunger, pet.sleep, pet.joy) #constantly reupdates pet stats to lcd
+                
+                #checks sensor data if user is interacting
                 sensors.touch(pet)
                 sensors.hunger(pet)
                 sensors.sleep(pet)
+
                 face.changeFace()
-                time.sleep(1)
+                time.sleep(.5)
+
+                if startButton.is_held_for(REBOOT_HOLD_TIME): #if start button is held for reboot time, the game restarts
+                    reboot_program()
         except KeyboardInterrupt:
             logging.info("Program stopped by user.")
         finally:
             GPIO.cleanup()
-            
-        if startButton.is_held_for(REBOOT_HOLD_TIME):
-            reboot_program()
+
         time.sleep(0.1)
 
 if __name__ == "__main__":

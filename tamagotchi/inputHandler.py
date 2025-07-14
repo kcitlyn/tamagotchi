@@ -88,7 +88,7 @@ class Sensors:
         bus= smbus.SMBus(1)
         command=Sensors.channels[channel] #this assigns sensor to specified channel in method
         if address==ADC_ADDRESS:
-            if channel>-1 and channel<7:
+            if channel>-1 and channel<7: #there are only 8 channels on ADC module (ADS7830)
                 try:
                     bus.write_byte(address, command)
                     time.sleep(0.1)

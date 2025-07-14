@@ -9,10 +9,10 @@ class Display:
                     backlight_enabled=True) #changing this parameter will only work if the jumper for the backlight on the LCD is also on
         self.lcd.clear()
         self.loadChar()
-        self.lcd.cursor_pos = (0, 0)          # Row 1, column 1
-        self.lcd.write_string('\x00\x01')    # Top row of the face
-        self.lcd.cursor_pos = (1, 0)          # Row 2, column 2
-        self.lcd.write_string('\x02\x03')    # Bottom row of the face
+        self.lcd.cursor_pos = (0, 0)          
+        self.lcd.write_string('\x00\x01')    # writes top row of the face
+        self.lcd.cursor_pos = (1, 0)
+        self.lcd.write_string('\x02\x03')    # writes bottom row of the face
 
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
