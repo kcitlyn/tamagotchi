@@ -105,6 +105,7 @@ class Sensors:
     @staticmethod
     def daylight():
         brightness=(Sensors.readChannel(ADC_ADDRESS,1))/255
+        print(brightness)
         if 0 < brightness < BRIGHTNESS_THRESHOLD:
             is_day=False
         else:

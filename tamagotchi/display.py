@@ -16,7 +16,7 @@ class Display:
 
     def display_stats(self, hunger, sleep, joy):
         # Row 0: Hunger 'h: x'
-        self.lcd.cursor_pos = (1, 5)
+        self.lcd.cursor_pos = (1, 4)
         self.lcd.write_string(f"h:{round(hunger)} s:{round(sleep)} j:{round(joy)}")
 
     def screenChange(self, state):
@@ -37,7 +37,7 @@ class Display:
         elif state == "dead":
             self.screenMessage("(x_x)", "dead")
         elif state == "neutral":
-            self.screenMessage("(・_・)", "meh")
+            self.screenMessage("('_')", "meh")
         else:
             logging.error("error in screenChange method")
 
@@ -50,7 +50,7 @@ class Display:
             faceStartCol = 4
             self.lcd.cursor_pos = (0, faceStartCol)
             self.lcd.write_string(emoticon)
-            self.lcd.cursor_pos(1,0)
+            self.lcd.cursor_pos= (1,0)
             self.lcd.write_string("holdred2restart")
         else:
             faceStartCol = 4
