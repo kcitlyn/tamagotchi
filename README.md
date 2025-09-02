@@ -37,7 +37,7 @@ Power supplied via Pi’s onboard 3.3V and 5V rails ensures streamlined componen
 - Utilizes **4 GPIO pins** for buttons and sensor inputs.  
 - Employs **I2C communication** bus for both ADC module and LCD screen, showcasing multi-device bus management.
 
-> **Schematic:** Refer to [`docs/wiring_schematic.png`](docs/wiring_schematic.png) for detailed circuit diagrams and connection layout. *(Schematic to be added for completeness.)*
+> **Schematic:** Refer to [`docs/wiring_schematic.png`](docs/tamagotchi_pet_schematic.jpg) for detailed circuit diagrams and connection layout. 
 
 ---
 
